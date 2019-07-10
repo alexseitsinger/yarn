@@ -56,7 +56,10 @@ export async function run(config: Config, reporter: Reporter, flags: Object, arg
       throw new MessageError(reporter.lang('unknownPackageName'));
     }
 
-    const linkLoc = path.join(config.linkFolder, name);
+    // Convert the linkFolder path to the real absolute path in case it's within
+    // a symlinked home directory.
+    const realLinkFolder = await fs.realpath(config.linkFolder)
+    const linkLoc = path.join(realLinkFolder, name);
     if (await fs.exists(linkLoc)) {
       reporter.warn(reporter.lang('linkCollision', name));
     } else {
